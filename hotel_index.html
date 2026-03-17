@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8"> <!-- para caracteres especiales -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- adapta la pantalla el dispositivo--> -->
+    <title>Garibay's Hotel</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="screen-login" class="pantalla">
+    <div id="logo">
+        <h1>GARIBAY'S</h1>
+        <p>H · O · T · E · L</p>
+    </div>
+    <div id="formulario-login">
+        <button onclick="entrarComoCliente()">🧳 Soy Cliente</button>
+        <button onclick="mostrarLoginEmpleado()">🏢 Soy Empleado</button>
+        <div id="login-empleado" style="display:none"> <!-- Formulario aculto hasta que el usuario elija empleado -->
+            <input type="text" id="login-user" placeholder="Correo">
+            <input type="password" id="login-pass" placeholder="Contraseña">
+            <button onclick="doLogin()">Entrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- CLIENTE PASO 1: BUSCAR HABITACIÓN -->
+<div id="screen-cliente" class="pantalla" style="display:none"> <!-- lo mismo oculto hasta que el usuario presiona cliente -->
+    <div class="nav">
+        <span>🌴 Garibay's Hotel</span>
+        <button onclick="salir()">Salir</button>
+    </div>
+    <div class="contenido">
+        <h2>🛏️ Hacer Reserva</h2>
+        <div class="fila">
+            <div class="campo">
+                <label>Fecha entrada</label>
+                <input type="date" id="checkin">
+            </div>
+            <div class="campo">
+                <label>Fecha salida</label>
+                <input type="date" id="checkout">
+            </div>
+        </div>
+        <div class="campo">
+            <label>Tipo de habitación</label>
+            <select id="filtro-tipo" onchange="renderHabitaciones()"> <!-- Menu despegable -->
+                <option value="">Todos</option>
+                <option>Simple</option>
+                <option>Doble</option>
+                <option>Suite</option>
+                <option>Premium</option>
+            </select>
+        </div>
+        <div id="lista-habitaciones" class="hab-grid"></div> <!-- info del tipo de habitacion  -->
+        <button onclick="siguientePaso1()">Siguiente →</button>
+    </div>
+</div>
+
+<!-- CLIENTE PASO 2: MIS DATOS -->
+<div id="screen-paso2" class="pantalla" style="display:none">
+    <div class="nav">
+        <span>🌴 Garibay's Hotel</span>
+        <button onclick="salir()">Salir</button>
+    </div>
+    <div class="contenido">
+        <h2>📋 Mis Datos</h2>
+        <div class="fila">
+            <div class="campo">
+                <label>Nombre completo</label>
+                <input type="text" id="s2-nombre" placeholder="Juan Garcia">
+            </div>
+            <div class="campo">
+                <label>Teléfono</label>
+                <input type="tel" id="s2-tel" placeholder="+52 6641165544">
+            </div>
+        </div>
+        <div class="campo">
+            <label>Correo</label>
+            <input type="email" id="s2-email" placeholder="juan@correo.com">
+        </div>
+        <div class="fila">
+            <div class="campo">
+                <label>Tipo</label>
+                <input type="text" id="s2-tipo" readonly> <!-- con readonly el usuario no puede editar -->
+            </div>
+            <div class="campo">
+                <label>Habitación</label>
+                <input type="text" id="s2-num" readonly>
+            </div>
+            <div class="campo">
+                <label>Precio/noche</label>
+                <input type="text" id="s2-precio" readonly>
+            </div>
+        </div>
+        <div class="fila">
+            <div class="campo">
+                <label>Check-in</label>
+                <input type="text" id="s2-checkin" readonly>
+            </div>
+            <div class="campo">
+                <label>Check-out</label>
+                <input type="text" id="s2-checkout" readonly>
+            </div>
+        </div>
+        <div style="display:flex;gap:10px"> <!-- parte del css, botones aun lado del otro -->
+            <button onclick="mostrarPantalla('screen-cliente')">← Atrás</button>
+            <button onclick="siguientePaso2()">Siguiente →</button>
+        </div>
+    </div>
+</div>
+
+<!-- CLIENTE PASO 3: CONFIRMACIÓN -->
+<div id="screen-paso3" class="pantalla" style="display:none">
+    <div class="nav">
+        <span>🌴 Garibay's Hotel</span>
+        <button onclick="salir()">Salir</button>
+    </div>
+    <div class="contenido">
+        <h2>✅ Confirmacióon</h2>
+        <div class="resumen">
+            <p><span>Huesped:</span> <strong id="conf-nombre"></strong></p>
+            <p><span>Habitacion:</span> <strong id="conf-hab"></strong></p>
+            <p><span>Check-in:</span> <strong id="conf-checkin"></strong></p>
+            <p><span>Check-out:</span> <strong id="conf-checkout"></strong></p>
+            <p><span>Noches:</span> <strong id="conf-noches"></strong></p>
+            <p><span>Total:</span> <strong id="conf-total"></strong></p>
+        </div>
+        <div class="campo">
+            <label>Tipo de pago</label>
+            <select id="tipo-pago">
+                <option>Efectivo en recepción</option>
+                <option>Tarjeta de crédito</option>
+                <option>Tarjeta de débito</option>
+                <option>Transferencia</option>
+            </select>
+        </div>
+        <div style="display:flex;gap:10px">
+            <button onclick="mostrarPantalla('screen-paso2')">← Atrás</button>
+            <button onclick="confirmarReserva()">Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ÉXITO -->
+<div id="screen-exito" class="pantalla" style="display:none">
+    <div class="contenido" style="text-align:center">
+        <div style="font-size:60px">🎉</div>
+        <h2>¡Reserva Confirmada!</h2>
+        <div class="resumen">
+            <p><span>ID:</span> <strong id="exito-id"></strong></p>
+            <p><span>Habitacion:</span> <strong id="exito-hab"></strong></p>
+            <p><span>Check-in:</span> <strong id="exito-checkin"></strong></p>
+            <p><span>Check-out:</span> <strong id="exito-checkout"></strong></p>
+            <p><span>Total:</span> <strong id="exito-total"></strong></p>
+            <p><span>Pago:</span> <strong id="exito-pago"></strong></p>
+        </div>
+        <button onclick="nuevaReserva()">+ Nueva Reserva</button>
+        <button onclick="salir()">Finalizar</button>
+    </div>
+</div>
+
+<!-- EMPLEADO -->
+<div id="screen-empleado" class="pantalla" style="display:none">
+    <div class="nav">
+        <span>🏨 Panel Empleado — <span id="emp-nombre"></span> · <span id="emp-cargo"></span></span>
+        <button onclick="salir()">Salir</button>
+    </div>
+    <div class="contenido">
+        <div class="tab-row">
+            <button class="tab-btn activo" onclick="empTab('tab-reservaciones', this)">📋 Reservaciones</button>
+            <button class="tab-btn" onclick="empTab('tab-habitaciones', this)">🛏️ Habitaciones</button>
+            <button class="tab-btn" onclick="empTab('tab-agregar', this)">➕ Agregar Hab.</button>
+            <button class="tab-btn" onclick="empTab('tab-nueva-res', this)">✏️ Nueva Reserva</button>
+        </div>
+
+        <!-- TAB RESERVACIONES -->
+        <div id="tab-reservaciones" class="tab-content">
+            <h3>📋 Reservaciones</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th><th>Cliente</th><th>Hab.</th><th>Tipo</th>
+                        <th>Check-in</th><th>Check-out</th><th>Estado</th><th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-reservaciones"></tbody>
+            </table>
+        </div>
+
+        <!-- TAB HABITACIONES -->
+        <div id="tab-habitaciones" class="tab-content" style="display:none">
+            <h3>🛏️ Habitaciones</h3>
+            <table>
+                <thead>
+                    <tr><th>N°</th><th>Tipo</th><th>Precio/noche</th><th>Disponibilidad</th></tr>
+                </thead>
+                <tbody id="tabla-habitaciones"></tbody>
+            </table>
+        </div>
+
+        <!-- TAB AGREGAR -->
+        <div id="tab-agregar" class="tab-content" style="display:none">
+            <h3>➕ Agregar Habitación</h3>
+            <div class="fila">
+                <div class="campo">
+                    <label>Número</label>
+                    <input type="text" id="ar-num" placeholder="101">
+                </div>
+                <div class="campo">
+                    <label>Tipo</label>
+                    <select id="ar-tipo">
+                        <option>Simple</option><option>Doble</option>
+                        <option>Suite</option><option>Premium</option>
+                    </select>
+                </div>
+            </div>
+            <div class="fila">
+                <div class="campo">
+                    <label>Precio/noche ($)</label>
+                    <input type="number" id="ar-precio" placeholder="850">
+                </div>
+                <div class="campo">
+                    <label>Disponibilidad</label>
+                    <select id="ar-disponible">
+                        <option>Disponible</option>
+                        <option>Ocupada</option>
+                        <option>Mantenimiento</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="agregarHabitacion()">➕ Agregar</button>
+        </div>
+
+        <!-- TAB NUEVA RESERVA -->
+        <div id="tab-nueva-res" class="tab-content" style="display:none">
+            <h3>✏️ Nueva Reserva</h3>
+            <div class="fila">
+                <div class="campo">
+                    <label>Nombre cliente</label>
+                    <input type="text" id="mr-nombre" placeholder="Juan García">
+                </div>
+                <div class="campo">
+                    <label>Teléfono</label>
+                    <input type="tel" id="mr-tel" placeholder="+52 664...">
+                </div>
+            </div>
+            <div class="campo">
+                <label>Correo</label>
+                <input type="email" id="mr-email" placeholder="cliente@correo.com">
+            </div>
+            <div class="fila">
+                <div class="campo">
+                    <label>Habitación</label>
+                    <select id="mr-hab"></select>
+                </div>
+                <div class="campo">
+                    <label>Tipo de pago</label>
+                    <select id="mr-pago">
+                        <option>Efectivo</option>
+                        <option>Tarjeta de crédito</option>
+                        <option>Tarjeta de débito</option>
+                        <option>Transferencia</option>
+                    </select>
+                </div>
+            </div>
+            <div class="fila">
+                <div class="campo">
+                    <label>Fecha entrada</label>
+                    <input type="datetime-local" id="mr-checkin">
+                </div>
+                <div class="campo">
+                    <label>Fecha salida</label>
+                    <input type="datetime-local" id="mr-checkout">
+                </div>
+            </div>
+            <button onclick="empNuevaReserva()">💾 Registrar</button>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
